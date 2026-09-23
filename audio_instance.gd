@@ -1,7 +1,7 @@
 class_name AudioInstance extends AudioStreamPlayer
 
 var channel: String
-var autodestroy: bool = true
+var autodestroy: bool = false
 
 var pitch_scale_tween: Tween
 var volume_tween: Tween
@@ -21,6 +21,7 @@ static func builder(sound: AudioStream = null, channel: String = AudioManager.MA
 ## - `to`: The pitch to interpolate to[br]
 ## - `duration`: The duration in seconds to interpolate for[br]
 ## - `from`: (Optional) The pitch to interpolate from, defaults to the current pitch[br]
+## - Returns: The [Tween] object
 func interpolate_pitch(to: float, duration: float, from: float = pitch_scale) -> Tween:
 	if pitch_scale == to: return
 	
@@ -32,15 +33,20 @@ func interpolate_pitch(to: float, duration: float, from: float = pitch_scale) ->
 		
 	return pitch_scale_tween
 
-func interpolate_volume(to: float, duration: float, from: float = volume_db) -> Tween:
-	if volume_db == to: return
+## Interpolates the volume of the audio instance[br]
+## - `to`: The volume to interpolate to[br]
+## - `duration`: The duration in seconds to interpolate for[br]
+## - `from`: (Optional) The volume to interpolate from, defaults to the current volume[br]
+## - Returns: The [Tween] object
+func interpolate_volume(to: float, duration: float, from: float = volume_linear) -> Tween:
+	if volume_linear == to: return
 	
 	volume_tween = create_tween()
 	volume_tween.tween_property(self, "volume_linear", to, duration).from(from)
 	
 	if get_stream_paused():
 		volume_tween.pause()
-		
+
 	return volume_tween
 
 func pause():
@@ -55,6 +61,20 @@ func unpause():
 	
 func resume():
 	unpause()
+	
+func play_after(duration: float, position: float = 0):
+	await get_tree().create_timer(duration).timeout
+	play(position)
+
+func stop_in_time(duration: float = 0):
+	if duration == 0:
+		stop()
+	else:
+		var volume: float = volume_linear
+		var tween: Tween = interpolate_volume(0, duration)
+		await tween.finished
+		stop()
+		volume_linear = volume
 
 func destroy():
 	AudioManager.remove_audio_instance(self)

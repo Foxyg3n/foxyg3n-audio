@@ -5,8 +5,8 @@ const MAIN_AUDIO_CHANNEL: String = "Master"
 var channels: Array[String] = [] # Useless so far
 var audio_instances: Dictionary[String, Array] = {} #Dictionary[String, Array[AudioInstance]]
 
-@onready var audio_instance_scene: PackedScene = load("res://addons/foxyg3n_audio/AudioInstance.tscn")
-@onready var audio_bus_layout: AudioBusLayout = load("res://addons/foxyg3n_audio/audio_bus_layout.tres")
+@onready var audio_instance_scene: PackedScene = load("res://addons/foxyg3n-audio/AudioInstance.tscn")
+@onready var audio_bus_layout: AudioBusLayout = load("res://addons/foxyg3n-audio/audio_bus_layout.tres")
 
 func _ready() -> void:
 	initialize()
@@ -30,12 +30,14 @@ func initialize(bus_layout: AudioBusLayout = null):
 ## Plays an [AudioStream] through an audio channel
 func play(sound: AudioStream, channel: String = MAIN_AUDIO_CHANNEL, local_volume: float = 1.0, pitch: float = 1.0) -> AudioInstance:
 	if not audio_instances.has(channel):
-		printerr("AudioManager: Audio channel '" + channel + "' does not exist")
+		printerr("AudioManager: Audio channel '%s' does not exist" % channel)
 		return null
 	
 	return builder(sound, channel)\
 		.volume_linear(local_volume)\
 		.pitch(pitch)\
+		.autoplay(true)\
+		.autodestroy(true)\
 		.build()
 
 ## Creates an [AudioBuilder] to build an [AudioInstance][br]
@@ -106,7 +108,6 @@ class AudioBuilder:
 
 	func _init(sound: AudioStream = null, channel: String = AudioManager.MAIN_AUDIO_CHANNEL):
 		audio_instance = AudioManager._create_audio_instance(sound, channel)
-		audio_instance.autoplay = true
 	
 	func sound(sound: AudioStream) -> AudioBuilder:
 		audio_instance.stream = sound

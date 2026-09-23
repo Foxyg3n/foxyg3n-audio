@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://b76hstq1mq4ut"]
+
+[ext_resource type="Script" uid="uid://657byhjyv3gd" path="res://addons/foxyg3n_audio/audio_instance.gd" id="1_ub82s"]
+
+[node name="AudioInstance" type="AudioStreamPlayer"]
+script = ExtResource("1_ub82s")
+metadata/_custom_type_script = "uid://657byhjyv3gd"
